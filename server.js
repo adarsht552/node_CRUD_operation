@@ -1,31 +1,34 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const helmet = require('helmet');
-const cors = require('cors');
-const productRoutes = require('./routers/productRoutes'); // Corrected the path from 'routers' to 'routes'
-require('dotenv').config();
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import createPhotographer from './routes/vendorSide/create/artist/photographer/photographerRoute.js';
+import selectPhotographer from './routes/clientSide/serviceSelect/artist/photographer/selectPhotographerRoute.js';
+
+dotenv.config(); // Load environment variables from .env file
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000; // Provide a fallback port
 
 // Middleware
-app.use(helmet()); // Added for security
-app.use(cors()); // Added for CORS
-app.use(express.json()); // Use built-in body parser for JSON
+app.use(helmet()); // Security middleware to set various HTTP headers for protection
+app.use(cors()); // Enable CORS to allow cross-origin requests
+app.use(express.json()); // Middleware to parse JSON bodies in requests
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
-
-// Routes
-app.use('/api/products', productRoutes);
+// Define routes
+app.use('/api/vendor/create', createPhotographer); // Routes for creating photographers
+app.use('/api/client/serviceSelect', selectPhotographer); // Routes for selecting photographers
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
+    console.error(err.stack); // Log the error stack trace to the console
+    res.status(500).json({ message: 'Something went wrong!' }); // Send a generic error message
+});
+
+// Root route
+app.get('/', (req, res) => {
+    res.send('Welcome to Node.js CRUD API'); // Send a welcome message on the root route
 });
 
 // Start the server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); // Listen for incoming connections on the specified port
