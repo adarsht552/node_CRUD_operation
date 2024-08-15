@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Photographer {
+  photographer_id String         @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for the photographer
+  name            String         // Name of the photographer
+  price           Int            // Price charged by the photographer
+  image           String?        // Optional URL or path to the photographer's image
+  description     String?        // Optional description of the photographer
+  category        String         // Category of photography
+  tag             String?        // Optional tags associated with the photographer
+  offers          String         // Special offers or promotions
+  bookings        DateAndTime[]  @relation("PhotographerBookings") // Relationship to the DateAndTime model
+}
+
+model DateAndTime {
+  date_id         String         @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for the booking
+  date            DateTime       // Date of the booking
+  time            DateTime       // Time of the booking
+  photographer    Photographer?  @relation("PhotographerBookings", fields: [photographerId], references: [photographer_id]) // Relationship to the Photographer model
+  photographerId  String?        @db.ObjectId // Foreign key to the Photographer model
+  @@unique([date, time, photographerId]) // Ensures that a combination of date, time, and photographerId is unique
+}
