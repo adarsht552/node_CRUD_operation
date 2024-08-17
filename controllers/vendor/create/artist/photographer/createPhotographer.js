@@ -11,20 +11,36 @@ export const photographer = async (req, res) => {
         description,
         category,
         tag,
-        offers
+        offers,
+        city,
+        eventType,
+        gender,
+        language,
+        ratings,
+        phonenumber,
+        email,
+        address
     } = req.body;
 
     try {
         // Create a new photographer record in the database
         const newPhotographer = await prisma.photographer.create({
             data: {
-                name,        // Photographer's name
-                price,       // Photographer's price
-                image,       // Photographer's image URL or path
-                description, // Photographer's description
-                category,    // Category of photography
-                tag,         // Tags associated with the photographer
-                offers       // Special offers or promotions
+                name,
+                price,
+                image,
+                description,
+                category,
+                tag,
+                offers,
+                city,
+                eventType,
+                gender,
+                language,
+                ratings,
+                phonenumber,
+                email,
+                address
             }
         });
 

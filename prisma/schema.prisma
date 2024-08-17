@@ -1,29 +1,62 @@
+// Prisma Client Generator configuration
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-js" // Specifies the Prisma Client JavaScript/TypeScript library as the client to generate
 }
 
+// Data source configuration for MongoDB
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider = "mongodb" // Specifies MongoDB as the database provider
+  url      = env("DATABASE_URL") // Database connection URL from environment variable
 }
 
+// Model for photographers
 model Photographer {
-  photographer_id String         @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for the photographer
-  name            String         // Name of the photographer
-  price           Int            // Price charged by the photographer
-  image           String?        // Optional URL or path to the photographer's image
-  description     String?        // Optional description of the photographer
-  category        String         // Category of photography
-  tag             String?        // Optional tags associated with the photographer
-  offers          String         // Special offers or promotions
-  bookings        DateAndTime[]  @relation("PhotographerBookings") // Relationship to the DateAndTime model
+  photographer_id String        @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for the photographer, mapped to MongoDB's ObjectId
+  name            String        // Name of the photographer
+  price           Int           // Price charged by the photographer (assumed to be in the smallest currency unit, e.g., cents)
+  image           String?       // Optional URL or path to the photographer's image
+  description     String?       // Optional description of the photographer
+  category        String        // Category of photography (e.g., portrait, landscape)
+  tag             String?       // Optional tags associated with the photographer
+  offers          String        // Special offers or promotions provided by the photographer
+  city            String        // City where the photographer operates
+  eventType       String        // Type of events the photographer specializes in (e.g., weddings, corporate)
+  gender          String        // Gender of the photographer
+  language        String        // Language spoken by the photographer
+  ratings         Float         // Average rating of the photographer
+  phonenumber     Int           // Phone number of the photographer (assumed to be stored as an integer)
+  email           String        // Email address of the photographer
+  address         String        // Physical address of the photographer
+  bookings        Bookings[]    @relation("PhotographerBookings") // Relationship to the Bookings model
+  Avialablity     Avialablity[] @relation("PhotographerAvialablity") // Relationship to the Avialablity model
+  Services        Services[]    @relation("PhotographerServices") // Relationship to the Services model
 }
 
-model DateAndTime {
-  date_id         String         @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for the booking
-  date            DateTime       // Date of the booking
-  time            DateTime       // Time of the booking
-  photographer    Photographer?  @relation("PhotographerBookings", fields: [photographerId], references: [photographer_id]) // Relationship to the Photographer model
-  photographerId  String?        @db.ObjectId // Foreign key to the Photographer model
-  @@unique([date, time, photographerId]) // Ensures that a combination of date, time, and photographerId is unique
+// Model for bookings
+model Bookings {
+  date_id        String        @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for the booking, mapped to MongoDB's ObjectId
+  date           DateTime      // Date of the booking
+  time           DateTime      // Time of the booking
+  photographer   Photographer? @relation("PhotographerBookings", fields: [photographerId], references: [photographer_id]) // Relationship to the Photographer model
+  photographerId String?       @db.ObjectId // Foreign key to the Photographer model
+
+  @@unique([date, time, photographerId]) // Ensures that a combination of date, time, and photographerId is unique to prevent double bookings
+}
+
+// Model for availability
+model Avialablity {
+  avialablity_id String        @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for the availability record, mapped to MongoDB's ObjectId
+  avialableDates DateTime[]    // Array of dates when the photographer is available
+  photographer   Photographer? @relation("PhotographerAvialablity", fields: [photographerId], references: [photographer_id]) // Relationship to the Photographer model
+  photographerId String?       @db.ObjectId // Foreign key to the Photographer model
+}
+
+// Model for services offered by photographers
+model Services {
+  service_id     String        @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for the service, mapped to MongoDB's ObjectId
+  name           String[]      // Array of names for the service (e.g., different types of photo packages)
+  description    String[]      // Array of descriptions for the service
+  price          Int[]         // Array of prices for the service (assuming different price points)
+  photographer   Photographer? @relation("PhotographerServices", fields: [photographerId], references: [photographer_id]) // Relationship to the Photographer model
+  photographerId String?       @db.ObjectId // Foreign key to the Photographer model
 }
