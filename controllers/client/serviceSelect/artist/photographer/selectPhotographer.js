@@ -16,7 +16,7 @@ export const photographer = async (req, res) => {
         const parseTime = new Date(`${date}T${time}Z`);
 
         // Check if there is already an existing booking for the same date and time
-        const existingBooking = await prisma.dateAndTime.findFirst({
+        const existingBooking = await prisma.bookings.findFirst({
             where: {
                 date: parseDate,
                 time: parseTime,
@@ -30,7 +30,7 @@ export const photographer = async (req, res) => {
         }
 
         // If no existing booking is found, create a new booking
-        const newBooking = await prisma.dateAndTime.create({
+        const newBooking = await prisma.bookings.create({
             data: {
                 date: parseDate,
                 time: parseTime,
